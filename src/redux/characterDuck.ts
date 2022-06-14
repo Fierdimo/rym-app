@@ -11,9 +11,8 @@ const Http = new Axios({
 })
 
 //constants 
-const initialState = {
-    pjs:[]
-}
+
+
 const results = {
     id: Number,
     name: String,
@@ -31,6 +30,11 @@ const personaje = {
     specie: String,
     photo: String
 }
+const initialState = {
+    pjs:[]
+}
+export type TypeofInitial = typeof initialState
+export type TypeofResults = typeof results
 
 enum ActionType {
     GET_CHARACTER_LIST = 'GET_CHARACTER_LIST'

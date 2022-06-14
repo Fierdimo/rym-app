@@ -1,16 +1,11 @@
 import {configureStore, combineReducers, compose, applyMiddleware} from '@reduxjs/toolkit'
 
-import characterReducer from './characterDuck'
+import character from './characterDuck'
 
  const rootReducer = combineReducers({
-    data: characterReducer
+    character
 })
-/*
-const composeEnhacers = compose;
-export default function generateStore(){
-    const store = configureStore(rootReducer)
-    return store
-}  */
+
 
 const store = configureStore({
     reducer: rootReducer,
