@@ -1,23 +1,16 @@
 
 
-import { Dispatch } from "redux";
-import { Axios, AxiosResponse } from "axios";
-
-const Http = new Axios({
-    baseURL: 'https://rickandmortyapi.com/api/',
-    headers: {
-        "Content-type": "application/json"
-      }
-})
+import {AxiosResponse } from "axios";
+import Http from "./Http";
 
 //constants 
-
 
 const results = {
     id: Number,
     name: String,
     type: String,
     dimension: String,
+    residents: Array<String>
 }
 
 const data = {
@@ -26,13 +19,25 @@ const data = {
 }
 
 const personaje = {
-    name : String,
-    specie: String,
-    photo: String
+    id: Number,
+    name: String,
+    status: String,
+    species: String,
+    type: String,
+    gender: String,
+    origin: Object,
+    location: Object,
+    image: String,
+    episode: Array,
+    url: String,
+    created: String
 }
+
 const initialState = {
     pjs:[]
 }
+
+export type TypeofPersonaje = typeof personaje
 export type TypeofInitial = typeof initialState
 export type TypeofResults = typeof results
 
@@ -42,7 +47,7 @@ enum ActionType {
 
 interface getCharacterAction {
     type: ActionType.GET_CHARACTER_LIST,
-    payload: Array<typeof results>
+    payload: TypeofPersonaje[]
 }
 type Action = getCharacterAction
 
@@ -57,20 +62,28 @@ export default function reducer(state = initialState, action: Action){
 }
 
 //actions
-export async function  getCharacterList(): Promise<Action>{
-   const response:AxiosResponse = await Http.get<Array<typeof data>>('location?page=6')
-   const personajes = JSON.parse(response.data).results.map((pj:typeof results)=>{
-    return {
-        id: pj.id,
-        name: pj.name,
-        type: pj.type,
-        dimension: pj.dimension,
-    }
-})
+async function getcharactersfromList(allDirections:Array<typeof results.residents>):Promise<Array<TypeofPersonaje>>{
+    var characterList:Array<TypeofPersonaje>=[]
+    allDirections.forEach(async (url)=>{
+        const query:AxiosResponse = await Http.get<Array<TypeofPersonaje>>(`${url}`)
+        characterList.push(JSON.parse(`${query.data}`))
+    }) 
 
+return characterList
+}
+
+export async function  getCharacterList(): Promise<Action>{
+    var allDirections: Array<typeof results.residents> = []
+    var response:AxiosResponse = await Http.get<Array<typeof data>>('https://rickandmortyapi.com/api/location?page=1')
+    JSON.parse(response.data).results.forEach((pj:typeof results)=>{
+        allDirections = allDirections.concat(pj.residents) 
+    })
+const lista = await getcharactersfromList(allDirections)
+console.log(lista)
+ 
     return{
         type:ActionType.GET_CHARACTER_LIST,
-        payload:personajes
+        payload:lista
     }
       
 }
