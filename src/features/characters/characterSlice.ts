@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState, AppDispatch } from "../../app/store";
 import axios, { AxiosResponse } from "axios";
+import { Root } from "react-dom/client";
 
 export interface character {
   id: number;
@@ -14,10 +15,12 @@ export interface characterState {
     [id: number]: character;
   };
   page: number;
+  status: string;
 }
 const initialState: characterState = {
   characters: {},
-  page: 1,
+  page: 0,
+  status: "READY",
 };
 
 interface Results {
@@ -52,24 +55,18 @@ const characterSlice = createSlice({
   name: "character",
   initialState,
   reducers: {
-    catchCharacters(state: any, action: PayloadAction<character[]>) {
+    catchCharacters(state: characterState, action: PayloadAction<character[]>) {
       const characters = action.payload;
-      characters.forEach((char) => {
-        state.characters[char.id] = char;
-      });
-      state.characters = Object.keys(state.characters).sort().reduce(
-        (obj:any, key:any) => { 
-          obj[key] = state.characters[key]; 
-          return obj;
-        }, 
-        {}
-      );
-    },
-    addCharacters(state: any, action: PayloadAction<character[]>) {
-      const characters = action.payload;
-      characters.forEach((char) => {
-        state.characters[`${char.id}`] = char;
-      });
+
+      if (state.status === "READY") {
+        state.status='BUSY'
+        characters.forEach((char) => {
+          state.characters[char.id] = char;
+        });
+        state.page++;
+        console.log(state.page);
+        state.status='READY'
+      }
     },
   },
 });
@@ -83,16 +80,16 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
       results.forEach((pj: Results) => {
         allDirections = allDirections.concat(pj.residents);
       });
-      Promise.all(       
+      Promise.all(
         allDirections.map(async (url) => {
           const query: AxiosResponse = await axios.get<personaDB>(`${url}`);
           const data = query.data;
           return {
-            id: (page*10000)+data.id,
+            id: page * 10000 + data.id,
             name: data.name,
             specie: data.species,
             photo: data.image,
-          };          
+          };
         })
       ).then((all) => {
         dispatch(catchCharacters(all));
@@ -102,7 +99,9 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
 
 export function addCharacters(page: number) {
   return (dispatch: AppDispatch) => {
-    fetchCharacters(page, dispatch);
+    if (page < 8) {
+      setTimeout(fetchCharacters, 1000, page, dispatch);
+    }
   };
 }
 

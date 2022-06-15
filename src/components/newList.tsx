@@ -16,6 +16,15 @@ export default function NewList() {
   const characters = useAppSelector((state) => state.info);
   const dispatch = useAppDispatch();
 
+  function scrolling(e: any){
+    //console.log(e.target.scrollHeight - e.target.scrollTop)
+
+    if(e.target.scrollHeight - e.target.scrollTop< 600){
+
+      dispatch(addCharacters(characters.page + 1))
+    }
+  }
+
   useEffect(() => {
     dispatch(addCharacters(1));
   }, []);
@@ -29,10 +38,17 @@ export default function NewList() {
         alignItems="center"
       >
         <Grid item xs={12}>
-          <Button onClick={()=>dispatch(addCharacters(2))}>{Object.keys(characters.characters).length}</Button>
+          <Button onClick={() => dispatch(addCharacters(characters.page + 1))}>
+            {characters.page}
+          </Button>
         </Grid>
-        <Grid item xs={8} sx={{ height: 550, overflow: "auto",border:1, m:3 }}>
-          <List>
+        <Grid
+          item
+          xs={8}
+          sx={{ height: 550, overflow: "auto", border: 1, m: 3 }}
+          onScroll={e=>scrolling(e)}
+        >
+          <List >
             {Object.values(characters.characters).map((character) => {
               return (
                 <ListItem key={character.id}>
