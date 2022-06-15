@@ -5,7 +5,8 @@ import Http from "./Http";
 
 //constants 
 
-const results = {
+
+interface Results {
     id: Number,
     name: String,
     type: String,
@@ -13,12 +14,12 @@ const results = {
     residents: Array<String>
 }
 
-const data = {
+interface DBData {
     info: String,
-    results: Array<typeof results>,
+    results: Results[],
 }
 
-const personaje = {
+interface personaDB {
     id: Number,
     name: String,
     status: String,
@@ -28,18 +29,15 @@ const personaje = {
     origin: Object,
     location: Object,
     image: String,
-    episode: Array,
+    episode: String[],
     url: String,
     created: String
 }
-
-const initialState = {
-    pjs:[]
+interface personaOutData{
+    name:String,
+    specie:String,
+    photo:String
 }
-
-export type TypeofPersonaje = typeof personaje
-export type TypeofInitial = typeof initialState
-export type TypeofResults = typeof results
 
 enum ActionType {
     GET_CHARACTER_LIST = 'GET_CHARACTER_LIST'
@@ -47,10 +45,19 @@ enum ActionType {
 
 interface getCharacterAction {
     type: ActionType.GET_CHARACTER_LIST,
-    payload: TypeofPersonaje[]
+    payload: personaOutData[]
 }
+
 type Action = getCharacterAction
 
+interface baseState{
+    pjs: personaOutData[]
+}
+const initialState:baseState = {
+    pjs: []
+}
+
+export type {baseState}
 //reducers
 export default function reducer(state = initialState, action: Action){
     switch(action.type){
@@ -62,28 +69,33 @@ export default function reducer(state = initialState, action: Action){
 }
 
 //actions
-async function getcharactersfromList(allDirections:Array<typeof results.residents>):Promise<Array<TypeofPersonaje>>{
-    var characterList:Array<TypeofPersonaje>=[]
-    allDirections.forEach(async (url)=>{
-        const query:AxiosResponse = await Http.get<Array<TypeofPersonaje>>(`${url}`)
-        characterList.push(JSON.parse(`${query.data}`))
-    }) 
-
-return characterList
+async function getcharactersfromList(allDirections:String[]):Promise<personaOutData[]>{
+    var characterList:personaOutData[]=[]
+    Promise.all(allDirections.map(async (url)=>{
+        const query:AxiosResponse = await Http.get<personaDB>(`${url}`)
+        const data = JSON.parse(`${query.data}`)
+        return {
+            name:data.name,
+            specie:data.species,
+            photo:data.url}
+        
+    }) ).then(all=> {
+        characterList=all
+        return characterList})
+    return characterList
 }
 
 export async function  getCharacterList(): Promise<Action>{
-    var allDirections: Array<typeof results.residents> = []
-    var response:AxiosResponse = await Http.get<Array<typeof data>>('https://rickandmortyapi.com/api/location?page=1')
-    JSON.parse(response.data).results.forEach((pj:typeof results)=>{
+    var allDirections: String[] = []
+    var response:AxiosResponse = await Http.get<DBData>('https://rickandmortyapi.com/api/location?page=1')
+    JSON.parse(response.data).results.forEach((pj:Results)=>{
         allDirections = allDirections.concat(pj.residents) 
     })
-const lista = await getcharactersfromList(allDirections)
-console.log(lista)
- 
+    var personas:personaOutData[]= await getcharactersfromList(allDirections)
+    console.log(personas)
+
     return{
         type:ActionType.GET_CHARACTER_LIST,
-        payload:lista
-    }
-      
+        payload:personas
+    }        
 }
