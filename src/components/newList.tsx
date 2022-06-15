@@ -29,11 +29,11 @@ export default function NewList() {
         alignItems="center"
       >
         <Grid item xs={12}>
-          <Button>Click</Button>
+          <Button onClick={()=>dispatch(addCharacters(2))}>{Object.keys(characters.characters).length}</Button>
         </Grid>
-        <Grid item xs={8} sx={{ height: 400, overflow: "auto", p:5, m:3 }}>
+        <Grid item xs={8} sx={{ height: 550, overflow: "auto",border:1, m:3 }}>
           <List>
-            {Object.values(characters.characters).map((character, index) => {
+            {Object.values(characters.characters).map((character) => {
               return (
                 <ListItem key={character.id}>
                   <ListItemAvatar>
@@ -45,7 +45,7 @@ export default function NewList() {
                   </ListItemAvatar>
                   <ListItemText
                     primary={character.name}
-                    secondary={character.specie}
+                    secondary={character.id}
                   />
                 </ListItem>
               );

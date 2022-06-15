@@ -13,9 +13,11 @@ export interface characterState {
   characters: {
     [id: number]: character;
   };
+  page: number;
 }
 const initialState: characterState = {
   characters: {},
+  page: 1,
 };
 
 interface Results {
@@ -55,11 +57,18 @@ const characterSlice = createSlice({
       characters.forEach((char) => {
         state.characters[char.id] = char;
       });
+      state.characters = Object.keys(state.characters).sort().reduce(
+        (obj:any, key:any) => { 
+          obj[key] = state.characters[key]; 
+          return obj;
+        }, 
+        {}
+      );
     },
     addCharacters(state: any, action: PayloadAction<character[]>) {
       const characters = action.payload;
       characters.forEach((char) => {
-        state.characters[char.id] = char;
+        state.characters[`${char.id}`] = char;
       });
     },
   },
@@ -74,18 +83,16 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
       results.forEach((pj: Results) => {
         allDirections = allDirections.concat(pj.residents);
       });
-
-      var characterList: character[] = [];
-      Promise.all(
+      Promise.all(       
         allDirections.map(async (url) => {
           const query: AxiosResponse = await axios.get<personaDB>(`${url}`);
           const data = query.data;
           return {
-            id: data.id,
+            id: (page*10000)+data.id,
             name: data.name,
             specie: data.species,
             photo: data.image,
-          };
+          };          
         })
       ).then((all) => {
         dispatch(catchCharacters(all));
@@ -93,7 +100,7 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
     });
 }
 
-export function addCharacters(page:number) {
+export function addCharacters(page: number) {
   return (dispatch: AppDispatch) => {
     fetchCharacters(page, dispatch);
   };
