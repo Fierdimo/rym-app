@@ -2,13 +2,14 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   Grid,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
 } from "@mui/material";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { addCharacters } from "../features/characters/characterSlice";
 
@@ -16,17 +17,16 @@ export default function NewList() {
   const characters = useAppSelector((state) => state.info);
   const dispatch = useAppDispatch();
 
-  function scrolling(e: any){
-    //console.log(e.target.scrollHeight - e.target.scrollTop)
+  function scrolling(e: any) {
+    const scrolling: number = e.target.scrollHeight - e.target.scrollTop;
 
-    if(e.target.scrollHeight - e.target.scrollTop< 600){
-
-      dispatch(addCharacters(characters.page + 1))
+    if (scrolling < 2000 && characters.status !== "DONE") {
+      dispatch(addCharacters(characters.page, characters.status));
     }
   }
 
   useEffect(() => {
-    dispatch(addCharacters(1));
+    dispatch(addCharacters(1, characters.status));
   }, []);
 
   return (
@@ -37,18 +37,23 @@ export default function NewList() {
         justifyContent="center"
         alignItems="center"
       >
-        <Grid item xs={12}>
-          <Button onClick={() => dispatch(addCharacters(characters.page + 1))}>
-            {characters.page}
-          </Button>
-        </Grid>
         <Grid
           item
           xs={8}
           sx={{ height: 550, overflow: "auto", border: 1, m: 3 }}
-          onScroll={e=>scrolling(e)}
+          onScroll={(e) => scrolling(e)}
         >
-          <List >
+          {characters.status === "BUSY" && (<CircularProgress
+              size={24}
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                marginTop: "-12px",
+                marginLeft: "-12px",
+              }}
+            />)}
+          <List>
             {Object.values(characters.characters).map((character) => {
               return (
                 <ListItem key={character.id}>
