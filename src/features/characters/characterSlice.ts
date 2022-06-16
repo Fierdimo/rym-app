@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type { RootState, AppDispatch } from "../../app/store";
+import type { AppDispatch } from "../../app/store";
 import axios, { AxiosResponse } from "axios";
 
 export interface character {
@@ -7,6 +7,7 @@ export interface character {
   name: String;
   specie: String;
   photo: string;
+  bookmarked:Boolean
 }
 
 type operation = "READY" | "BUSY" | "DONE";
@@ -21,7 +22,7 @@ export interface characterState {
 
 const initialState: characterState = {
   characters: {},
-  page: 0,
+  page: 1,
   status: "READY",
 };
 
@@ -59,7 +60,7 @@ const characterSlice = createSlice({
   reducers: {
     catchCharacters(state: characterState, action: PayloadAction<character[]>) {
       const characters = action.payload;
-      if (state.status === "BUSY" && state.page < 8) {
+      if (state.status === "BUSY") {
         characters.forEach((char) => {
           state.characters[char.id] = char;
         });
@@ -73,10 +74,10 @@ const characterSlice = createSlice({
     },
   },
   extraReducers: function (builder) {
-    builder.addCase("SEARCHING", (state, action) => {
+    builder.addCase("SEARCHING", (state) => {
       state.status = "BUSY";
     });
-    builder.addCase("FOUND", (state, action) => {
+    builder.addCase("FOUND", (state) => {
       state.status = "READY";
     });
   },
@@ -100,6 +101,7 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
             name: data.name,
             specie: data.species,
             photo: data.image,
+            bookmarked:false
           };
         })
       ).then((all) => {

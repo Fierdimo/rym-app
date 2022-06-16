@@ -1,15 +1,20 @@
 import {
+  BookmarkAddedOutlined,
+  BookmarkAddOutlined,
+} from "@mui/icons-material";
+import {
   Avatar,
-  Box,
-  Button,
+  Card,
   CircularProgress,
   Grid,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { addCharacters } from "../features/characters/characterSlice";
 
@@ -20,30 +25,32 @@ export default function NewList() {
   function scrolling(e: any) {
     const scrolling: number = e.target.scrollHeight - e.target.scrollTop;
 
-    if (scrolling < 2000 && characters.status !== "DONE") {
+    if (scrolling < 700 && characters.status !== "DONE") {
       dispatch(addCharacters(characters.page, characters.status));
     }
   }
 
   useEffect(() => {
     dispatch(addCharacters(1, characters.status));
+    // eslint-disable-next-line
   }, []);
 
   return (
-    <Box>
+    <Grid
+      container
+      direction="row"
+      justifyContent="center"
+      alignItems="center"
+    >
       <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
+        item
+        xs={6}
+        sx={{ height: 525, overflow: "auto", border: 1, m: 3 }}
+        onScroll={(e) => scrolling(e)}
       >
-        <Grid
-          item
-          xs={8}
-          sx={{ height: 550, overflow: "auto", border: 1, m: 3 }}
-          onScroll={(e) => scrolling(e)}
-        >
-          {characters.status === "BUSY" && (<CircularProgress
+        <Card>
+          {characters.status === "BUSY" && (
+            <CircularProgress
               size={24}
               sx={{
                 position: "absolute",
@@ -52,7 +59,8 @@ export default function NewList() {
                 marginTop: "-12px",
                 marginLeft: "-12px",
               }}
-            />)}
+            />
+          )}
           <List>
             {Object.values(characters.characters).map((character) => {
               return (
@@ -68,12 +76,21 @@ export default function NewList() {
                     primary={character.name}
                     secondary={character.id}
                   />
+                  <Tooltip title="Add Bookmark">
+                    <IconButton sx={{ mr: 8 }}>
+                      {character.bookmarked ? (
+                        <BookmarkAddedOutlined />
+                      ) : (
+                        <BookmarkAddOutlined />
+                      )}
+                    </IconButton>
+                  </Tooltip>
                 </ListItem>
               );
             })}
           </List>
-        </Grid>
+        </Card>
       </Grid>
-    </Box>
+    </Grid>
   );
 }
