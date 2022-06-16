@@ -72,6 +72,14 @@ const characterSlice = createSlice({
         }
       }
     },
+    bookmarkCharacter(state:characterState, action: PayloadAction<character>){
+      const character = action.payload;
+      state.characters[character.id] = {...character, bookmarked:true}
+    },
+    unBookmarkCharacter(state:characterState, action: PayloadAction<character>){
+      const character = action.payload;
+      state.characters[character.id] = {...character, bookmarked:false}
+    }
   },
   extraReducers: function (builder) {
     builder.addCase("SEARCHING", (state) => {
@@ -96,12 +104,16 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
         allDirections.map(async (url) => {
           const query: AxiosResponse = await axios.get<personaDB>(`${url}`);
           const data = query.data;
+          let bookmark:Boolean = false
+          if (localStorage.getItem(`RyM-bookmark${page * 10000 + data.id}`)){
+            bookmark = true
+          }
           return {
             id: page * 10000 + data.id,
             name: data.name,
             specie: data.species,
             photo: data.image,
-            bookmarked:false
+            bookmarked:bookmark
           };
         })
       ).then((all) => {
@@ -119,5 +131,5 @@ export function addCharacters(page: number, status: operation) {
   };
 }
 
-export const { catchCharacters } = characterSlice.actions;
+export const { catchCharacters, bookmarkCharacter, unBookmarkCharacter } = characterSlice.actions;
 export default characterSlice.reducer;

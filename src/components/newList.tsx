@@ -1,4 +1,5 @@
 import {
+  BookmarkAdded,
   BookmarkAddedOutlined,
   BookmarkAddOutlined,
 } from "@mui/icons-material";
@@ -18,6 +19,11 @@ import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { addCharacters } from "../features/characters/characterSlice";
 
+import { bookmarkCharacter, unBookmarkCharacter } from "../features/characters/characterSlice";
+import { addBookmark, removeBookmark } from "../features/bookmarks/bookmarkSlice";
+
+import type { character } from "../features/characters/characterSlice";
+
 export default function NewList() {
   const characters = useAppSelector((state) => state.info);
   const dispatch = useAppDispatch();
@@ -30,25 +36,27 @@ export default function NewList() {
     }
   }
 
+  function handleBookmark(character:character, bookmarked:Boolean){
+    if(bookmarked) {
+      dispatch(unBookmarkCharacter(character))
+    dispatch(removeBookmark(character))}
+    else{ dispatch(bookmarkCharacter(character))
+    dispatch(addBookmark(character))}
+
+  }
+
   useEffect(() => {
     dispatch(addCharacters(1, characters.status));
     // eslint-disable-next-line
   }, []);
 
   return (
-    <Grid
-      container
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Grid
-        item
-        xs={6}
-        sx={{ height: 525, overflow: "auto", border: 1, m: 3 }}
-        onScroll={(e) => scrolling(e)}
-      >
-        <Card>
+    <Grid container direction="row" justifyContent="center" alignItems="center">
+      <Grid item xs={6}>
+        <Card
+          sx={{ height: 555, overflow: "auto", border: 1, mt: 3 }}
+          onScroll={(e) => scrolling(e)}
+        >
           {characters.status === "BUSY" && (
             <CircularProgress
               size={24}
@@ -74,17 +82,16 @@ export default function NewList() {
                   </ListItemAvatar>
                   <ListItemText
                     primary={character.name}
-                    secondary={character.id}
+                    secondary={character.specie}
                   />
-                  <Tooltip title="Add Bookmark">
-                    <IconButton sx={{ mr: 8 }}>
+                    <IconButton sx={{ mr: 8 }} onClick={()=>handleBookmark(character, character.bookmarked)}>
                       {character.bookmarked ? (
-                        <BookmarkAddedOutlined />
+                        <BookmarkAdded sx={{ color:"#e21f25"}}/>
                       ) : (
-                        <BookmarkAddOutlined />
+                        <BookmarkAddOutlined sx={{ color:"#e21f25"}} />
                       )}
                     </IconButton>
-                  </Tooltip>
+                    
                 </ListItem>
               );
             })}

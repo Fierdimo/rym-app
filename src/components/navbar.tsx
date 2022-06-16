@@ -1,24 +1,33 @@
-import { Box, Button, Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import background from "../issues/banner.jpeg";
 
 export default function TopBavBar() {
+  const navigate = useNavigate();
+
   return (
     <Grid
       container
       spacing={2}
       direction="row"
       justifyContent="space-evenly"
-      alignItems="center"
+      alignItems="end"
       style={{
-        backgroundImage: `url(${background})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        padding: 5,
-        height: "100px",
+        height: "70px",
       }}
     >
-      <Button variant="contained">Character List</Button>
-      <Button variant="contained">Bookmarks</Button>
+      <Button
+        variant="contained"
+        onClick={() => navigate("/", { replace: true })}
+      >
+        Character List
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => navigate("/bookmarks", { replace: true })}
+      >
+        Bookmarks
+      </Button>
     </Grid>
   );
 }
