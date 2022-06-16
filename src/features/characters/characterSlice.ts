@@ -16,12 +16,16 @@ export interface characterState {
   characters: {
     [id: number]: character;
   };
+  charactersShow: {
+    [id: number]: character;
+  };
   page: number;
   status: operation;
 }
 
 const initialState: characterState = {
   characters: {},
+  charactersShow: {},
   page: 1,
   status: "READY",
 };
@@ -60,7 +64,21 @@ const characterSlice = createSlice({
   reducers: {
     catchCharacters(state: characterState, action: PayloadAction<character[]>) {
       const characters = action.payload;
-      if (state.status === "BUSY") {
+      if (state.status === "BUSY" && state.page < 8) {
+        characters.forEach((char) => {
+          state.characters[char.id] = char;
+        });
+        state.page++;
+        if (state.page === 8) {
+          state.status = "DONE";
+        } else {
+          state.status = "READY";
+        }
+      }
+    },
+    setCharacters(state: characterState, action: PayloadAction<character[]>) {
+      const characters = action.payload;
+      if ( state.page < 8) {
         characters.forEach((char) => {
           state.characters[char.id] = char;
         });
@@ -116,8 +134,8 @@ function fetchCharacters(page: number, dispatch: AppDispatch) {
             bookmarked:bookmark
           };
         })
-      ).then((all) => {
-        dispatch(catchCharacters(all));
+      ).then((thisPageChars) => {
+        dispatch(catchCharacters(thisPageChars));
       });
     });
 }
@@ -131,5 +149,14 @@ export function addCharacters(page: number, status: operation) {
   };
 }
 
-export const { catchCharacters, bookmarkCharacter, unBookmarkCharacter } = characterSlice.actions;
+export function addAllCharacters() {
+  return (dispatch: AppDispatch) => {
+    for (let page = 1; page <=7;page++) {
+      dispatch({ type: "SEARCHING" });
+      fetchCharacters(page, dispatch);
+    }
+  };
+}
+
+export const { catchCharacters, setCharacters, bookmarkCharacter, unBookmarkCharacter } = characterSlice.actions;
 export default characterSlice.reducer;

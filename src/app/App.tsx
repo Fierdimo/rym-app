@@ -4,8 +4,9 @@ import { Route, Routes, useNavigate} from "react-router-dom"
 import TopNavBar from "../components/navbar";
 import Listar from "../components/newList";
 import Bookmarks from "../components/bookmarks"
+import ListAll from "../components/ListAll"
 
-import backgroundHome from "../issues/images.jpeg";
+import backgroundHome from "../issues/rick-y-morty2.jpg";
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Listar />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
+        <Route path="/listall" element={<ListAll />} />
       </Routes>
     </Box>
   );

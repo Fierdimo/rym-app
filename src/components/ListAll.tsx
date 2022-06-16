@@ -1,4 +1,7 @@
-import { BookmarkAdded, BookmarkAddOutlined } from "@mui/icons-material";
+import {
+  BookmarkAdded,
+  BookmarkAddOutlined,
+} from "@mui/icons-material";
 import {
   Avatar,
   Card,
@@ -12,16 +15,10 @@ import {
 } from "@mui/material";
 import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
-import { addCharacters } from "../features/characters/characterSlice";
+//import { addAllCharacters } from "../features/characters/characterSlice";
 
-import {
-  bookmarkCharacter,
-  unBookmarkCharacter,
-} from "../features/characters/characterSlice";
-import {
-  addBookmark,
-  removeBookmark,
-} from "../features/bookmarks/bookmarkSlice";
+import { bookmarkCharacter, unBookmarkCharacter } from "../features/characters/characterSlice";
+import { addBookmark, removeBookmark } from "../features/bookmarks/bookmarkSlice";
 
 import type { character } from "../features/characters/characterSlice";
 
@@ -33,22 +30,21 @@ export default function NewList() {
     const scrolling: number = e.target.scrollHeight - e.target.scrollTop;
 
     if (scrolling < 700 && characters.status !== "DONE") {
-      dispatch(addCharacters(characters.page, characters.status));
-    }
-  } 
-
-  function handleBookmark(character: character, bookmarked: Boolean) {
-    if (bookmarked) {
-      dispatch(unBookmarkCharacter(character));
-      dispatch(removeBookmark(character));
-    } else {
-      dispatch(bookmarkCharacter(character));
-      dispatch(addBookmark(character));
+      //dispatch(addCharacters(characters.page, characters.status));
     }
   }
 
+  function handleBookmark(character:character, bookmarked:Boolean){
+    if(bookmarked) {
+      dispatch(unBookmarkCharacter(character))
+    dispatch(removeBookmark(character))}
+    else{ dispatch(bookmarkCharacter(character))
+    dispatch(addBookmark(character))}
+
+  }
+
   useEffect(() => {
-    dispatch(addCharacters(1, characters.status));
+    //dispatch(addAllCharacters(characters.status));
     // eslint-disable-next-line
   }, []);
 
@@ -57,7 +53,7 @@ export default function NewList() {
       <Grid item xs={6}>
         <Card
           sx={{ height: 555, overflow: "auto", border: 1, mt: 3 }}
-          onScroll={(e) => scrolling(e)}
+          
         >
           {characters.status === "BUSY" && (
             <CircularProgress
@@ -86,18 +82,13 @@ export default function NewList() {
                     primary={character.name}
                     secondary={character.specie}
                   />
-                  <IconButton
-                    sx={{ mr: 8 }}
-                    onClick={() =>
-                      handleBookmark(character, character.bookmarked)
-                    }
-                  >
-                    {character.bookmarked ? (
-                      <BookmarkAdded sx={{ color: "#e21f25" }} />
-                    ) : (
-                      <BookmarkAddOutlined sx={{ color: "#e21f25" }} />
-                    )}
-                  </IconButton>
+                    <IconButton sx={{ mr: 8 }} onClick={()=>handleBookmark(character, character.bookmarked)}>
+                      {character.bookmarked ? (
+                        <BookmarkAdded sx={{ color:"#e21f25"}}/>
+                      ) : (
+                        <BookmarkAddOutlined sx={{ color:"#e21f25"}} />
+                      )}
+                    </IconButton>                   
                 </ListItem>
               );
             })}
